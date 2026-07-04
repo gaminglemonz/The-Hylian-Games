@@ -1,0 +1,2623 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    	<meta charset="utf-8">
+    	<title>tco rd2 workspace</title>
+    	
+    	<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    	<style>
+    	 	html, body {
+    	 		margin: 0;
+    	 		padding: 0;
+    	 		overflow: hidden;
+    	 		width: 100%;
+    	 		height: 100%;
+    	 	}
+    	</style>
+    </head>
+    
+    <body>
+    	<canvas class='sketch'></canvas>
+    	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/Khan/processing-js@master/processing.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/Mushy-Avocado/KA-exporter@v1.0.1/exporter.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.3.0/build/decomp.min.js"></script>
+        
+        <script type>
+function HylianGames(){
+ 	
+ 	
+// General setup
+noStroke();
+size(window.innerWidth, window.innerHeight)
+
+// Set up canvas
+const sketch = document.querySelector('.sketch')
+const ctx = sketch.getContext('2d')
+ctx.imageSmoothingEnabled = false
+ 	
+// Set up Matter.js
+const { Engine, Events, Bodies, Query, Body, Collision, Composite, World } = Matter;
+const engine = Engine.create()
+engine.gravity.y = 0;
+
+// Set up fonts
+
+
+// GLOBALS \\
+
+// Constants
+const ENTITY_SIZE = 70;
+
+// Pixel art function
+function createPixels(bitmap, palette, pixelSize, x=0, y=0){
+    for (let i = 0; i < bitmap.length; i ++){
+        for (let j = 0; j < bitmap[i].length; j ++){
+            if (bitmap[i][j] !== ' '){
+            	pushMatrix();
+            	translate(x, y)
+                fill(palette[bitmap[i][j]]);
+                rect(Math.floor(j * pixelSize), Math.floor(i * pixelSize), pixelSize, pixelSize);
+                popMatrix();
+            }
+        }
+    }
+}
+
+// IMAGES \\
+const imgs = {
+	entities: {
+		bokoblin: function(){
+			background(0, 0)
+			fill(196, 100, 22);
+			beginShape();
+			vertex(19,219);
+			bezierVertex(48,234,48,234,99,229);
+			bezierVertex(114,226,114,226,188,240);
+			bezierVertex(192,216,238,201,260,195);
+			bezierVertex(306,186,342,194,393,213);
+			bezierVertex(409,222,417,229,421,244);
+			bezierVertex(495,229,495,229,513,232);
+			bezierVertex(556,240,556,240,579,229);
+			bezierVertex(565,255,565,259,562,285);
+			bezierVertex(557,315,556,316,521,333);
+			bezierVertex(485,353,485,353,415,353);
+			bezierVertex(404,373,381,382,302,383);
+			bezierVertex(212,382,192,373,188,358);
+			bezierVertex(99,356,98,356,62,333);
+			bezierVertex(31,316,28,309,19,277);
+			bezierVertex(14,250,19,241,20,218);
+			endShape();
+			fill(255, 238, 214);
+			beginShape();
+			vertex(23,236);
+			bezierVertex(45,253,50,253,95,253);
+			bezierVertex(131,254,132,254,175,275);
+			bezierVertex(177,314,177,314,182,342);
+			bezierVertex(148,353,147,353,107,348);
+			bezierVertex(82,338,78,336,65,327);
+			bezierVertex(44,319,40,316,26,293);
+			bezierVertex(19,270,18,259,24,238);
+			endShape();
+			beginShape();
+			vertex(566,246);
+			bezierVertex(553,254,552,254,515,249);
+			bezierVertex(485,244,468,269,429,275);
+			bezierVertex(424,306,430,321,425,340);
+			bezierVertex(448,348,452,348,475,344);
+			bezierVertex(506,333,510,331,531,319);
+			bezierVertex(551,309,551,304,558,277);
+			bezierVertex(560,261,560,261,566,246);
+			endShape();
+			fill(224, 184, 134);
+			beginShape();
+			vertex(196,341);
+			bezierVertex(195,354,195,356,217,366);
+			bezierVertex(237,375,237,375,250,374);
+			bezierVertex(278,378,278,378,293,376);
+			bezierVertex(314,377,314,377,325,374);
+			bezierVertex(346,370,364,370,369,367);
+			bezierVertex(375,363,390,357,390,353);
+			bezierVertex(392,349,392,354,392,348);
+			bezierVertex(378,350,372,351,342,352);
+			bezierVertex(317,355,305,354,274,352);
+			bezierVertex(236,351,227,351,219,350);
+			bezierVertex(208,348,206,348,196,352);
+			endShape();
+			fill(255, 132, 0);
+			beginShape();
+			vertex(282,291);
+			bezierVertex(274,306,239,318,258,342);
+			bezierVertex(268,353,268,353,289,348);
+			bezierVertex(324,354,328,353,335,334);
+			bezierVertex(335,312,330,311,314,301);
+			bezierVertex(309,297,302,276,283,290);
+			endShape();
+			fill(179, 118, 53);
+			beginShape();
+			vertex(280,311);
+			bezierVertex(271,320,255,327,268,340);
+			bezierVertex(276,343,280,335,281,310);
+			endShape();
+			beginShape();
+			vertex(306,313);
+			bezierVertex(308,331,309,343,316,343);
+			bezierVertex(327,337,329,327,317,323);
+			bezierVertex(310,320,308,318,306,314);
+			endShape();
+			fill(235, 171, 103);
+			beginShape();
+			vertex(199,274);
+			bezierVertex(216,274,239,284,251,279);
+			bezierVertex(250,271,246,275,234,273);
+			bezierVertex(216,272,204,265,199,270);
+			endShape();
+			beginShape();
+			vertex(397,269);
+			bezierVertex(387,277,353,285,347,280);
+			bezierVertex(346,271,351,275,363,274);
+			bezierVertex(384,270,388,267,398,270);
+			endShape();
+			fill(66, 183, 237);
+			beginShape();
+			vertex(213,276);
+			bezierVertex(197,282,206,308,220,308);
+			bezierVertex(235,309,245,295,237,282);
+			endShape();
+			beginShape();
+			vertex(358,281);
+			bezierVertex(351,296,356,302,363,305);
+			bezierVertex(376,309,391,292,378,277);
+			endShape();
+			fill(153, 215, 242);
+			beginShape();
+			vertex(213,276);
+			bezierVertex(197,282,206,308,220,284);
+			bezierVertex(235,282,245,295,237,282);
+			endShape();
+			beginShape();
+			vertex(358,281);
+			bezierVertex(351,296,366,302,367,283);
+			bezierVertex(376,276,391,290,378,277);
+			endShape();
+			fill(150, 81, 8);
+			beginShape();
+			vertex(206,356);
+			bezierVertex(224,352,248,359,269,359);
+			bezierVertex(283,362,311,362,334,362);
+			bezierVertex(348,359,361,354,384,355);
+			bezierVertex(374,364,364,359,356,365);
+			bezierVertex(347,368,320,369,301,373);
+			bezierVertex(278,375,263,366,243,371);
+			bezierVertex(233,369,215,362,206,357);
+			endShape();
+			fill(204, 204, 204);
+			beginShape();
+			vertex(231,355);
+			bezierVertex(229,368,229,368,234,368);
+			bezierVertex(244,370,244,370,245,356);
+			endShape();
+			beginShape();
+			vertex(331,362);
+			bezierVertex(332,370,332,370,344,368);
+			bezierVertex(347,368,347,368,347,359);
+			endShape();
+			beginShape();
+			vertex(259,370);
+			bezierVertex(260,363,265,363,266,370);
+			endShape();
+			beginShape();
+			vertex(311,371);
+			bezierVertex(309,366,316,365,317,370);
+			endShape();
+			fill(255, 240, 224);
+			beginShape();
+			vertex(272,208);
+			bezierVertex(280,219,311,221,328,206);
+			bezierVertex(297,107,297,107,273,206);
+			endShape();
+			
+			return get(16, 134, 563, 250);
+		},
+	},
+	weapons: {
+		iron_sword: function(){
+			background(0, 0);
+			
+			pushMatrix();
+			rectMode(CENTER);
+			translate(106, -5);
+			rotate(90);
+			
+			fill(255, 0, 0);
+			
+			pushMatrix();
+			translate(10, 0);
+			
+			fill(207, 207, 207);
+			beginShape();
+			vertex(15, 0);
+			vertex(6, 20);
+			vertex(6, 70);
+			vertex(15, 70);
+			endShape();
+			
+			fill(173, 173, 173);
+			beginShape();
+			vertex(15, 0);
+			vertex(24, 20);
+			vertex(24, 70);
+			vertex(15, 70);
+			endShape();
+			popMatrix();
+			
+			fill(94, 94, 94);
+			rect(24, 73, 39, 7);
+			rect(24, 91, 11, 30);
+			
+			fill(227, 208, 36);
+			// ellipse(0, 75, 12, 12);
+			rect(24, 96, 11, 2);
+			rect(24, 100, 11, 2);
+			rect(24, 104, 11, 3);
+			popMatrix();
+			
+			pushStyle();
+			stroke(255, 0, 0);
+			strokeWeight(5);
+			point(25, 105);
+			popStyle();
+
+			
+			return get(0, 0, 105, 39)
+		},
+		iron_spear: function(){
+			background(0, 0)
+			
+			fill(94, 94, 94);
+			rect(0, 7, 60, 4);
+			
+			fill(207, 207, 207);
+			triangle(60, 0, 80, 8, 60, 8);
+			
+			fill(173, 173, 173);
+			triangle(60, 8, 80, 8, 60, 16);
+			
+			return get(0, 0, 80, 16);
+		},
+	},
+	objects: {
+		crate: function(){
+			background(0, 0);
+			
+			for (let i = 0; i < 6; i ++){
+			     const clr = color(72 + random(0, 20), 57 - random(0, 42), 0 - random(0, 0));
+			     fill(clr);
+			     rect(0, i*16, 96, 16);
+			}
+			pushStyle();
+			stroke(97, 61, 8);
+			strokeWeight(23);
+			strokeCap(SQUARE);
+			line(-3, 90, 95, 3);
+			popStyle();
+			
+			return get(0, 0, 96, 96)
+		},
+		rock: function(){
+			background(0, 0)
+			
+			noStroke();
+			// fill(255, 0, 0)
+			// rect(0, 0, 437, 359)
+			
+			fill(138, 138, 138);
+			
+			pushMatrix();
+			translate(-73, -114);
+			
+			beginShape();
+			vertex(244,114);
+			vertex(175,123);
+			vertex(102,159);
+			vertex(76,224);
+			vertex(73,296);
+			vertex(118,382);
+			vertex(215,442);
+			vertex(404,473);
+			vertex(477,449);
+			vertex(509,372);
+			vertex(495,305);
+			vertex(461,237);
+			vertex(407,188);
+			vertex(317,140);
+			vertex(260,121);
+			vertex(243,115);
+			endShape(CLOSE);
+			
+			fill(156, 156, 156);
+			pushMatrix();
+			translate(86, 73);
+			scale(0.7);
+			beginShape();
+			vertex(244,114);
+			vertex(175,123);
+			vertex(102,159);
+			vertex(76,224);
+			vertex(73,296);
+			vertex(118,382);
+			vertex(215,442);
+			vertex(404,473);
+			vertex(477,449);
+			vertex(509,372);
+			vertex(495,305);
+			vertex(461,237);
+			vertex(407,188);
+			vertex(317,140);
+			vertex(260,121);
+			vertex(243,115);
+			endShape(CLOSE);
+			popMatrix();
+			popMatrix();
+
+			return get(0, 0, 437, 359)
+		},
+	},
+	particles: {
+		hit: function(){
+			background(0, 0);
+			
+			noStroke();
+			
+			// fill(255, 0, 0);
+			// rect(0, 0, 73, 62);
+			
+			pushMatrix();
+			translate(-11, -11);
+			scale(0.15);
+			
+			pushMatrix();
+			translate(-35, -27);
+			scale(1.1);
+			fill(255, 180, 94);
+			beginShape();
+			vertex(276,238);
+			vertex(285,90);
+			vertex(316,169);
+			vertex(332,109);
+			vertex(360,235);
+			vertex(494,140);
+			vertex(396,291);
+			vertex(543,401);
+			vertex(398,366);
+			vertex(390,418);
+			vertex(356,360);
+			vertex(311,415);
+			vertex(305,394);
+			vertex(275,466);
+			vertex(270,331);
+			vertex(186,313);
+			vertex(196,306);
+			vertex(97,270);
+			vertex(230,263);
+			vertex(187,245);
+			vertex(275,239);
+			endShape();
+			popMatrix();
+			
+			fill(255, 238, 176);
+			beginShape();
+			vertex(276,238);
+			vertex(285,90);
+			vertex(316,169);
+			vertex(332,109);
+			vertex(360,235);
+			vertex(494,140);
+			vertex(396,291);
+			vertex(543,401);
+			vertex(398,366);
+			vertex(390,418);
+			vertex(356,360);
+			vertex(311,415);
+			vertex(305,394);
+			vertex(275,466);
+			vertex(270,331);
+			vertex(186,313);
+			vertex(196,306);
+			vertex(97,270);
+			vertex(230,263);
+			vertex(187,245);
+			vertex(275,239);
+			endShape();
+			
+			pushMatrix();
+			translate(95, 93);
+			scale(0.7);
+			fill(255, 250, 245);
+			beginShape();
+			vertex(276,238);
+			vertex(285,90);
+			vertex(316,169);
+			vertex(332,109);
+			vertex(360,235);
+			vertex(494,140);
+			vertex(396,291);
+			vertex(543,401);
+			vertex(398,366);
+			vertex(390,418);
+			vertex(356,360);
+			vertex(311,415);
+			vertex(305,394);
+			vertex(275,466);
+			vertex(270,331);
+			vertex(186,313);
+			vertex(196,306);
+			vertex(97,270);
+			vertex(230,263);
+			vertex(187,245);
+			vertex(275,239);
+			endShape();
+			popMatrix();
+			
+			popMatrix();
+			
+			return get(0, 0, 73, 62);
+		},
+	},
+	items: {
+		apple: function(){
+			background(0, 0);
+			
+			pushMatrix();
+			translate(34, 23);
+			        
+			scale(4.2);
+			        
+			noFill();
+			stroke(110, 68, 33);
+			strokeWeight(3);
+			arc(1, 1, 5, 10, 90, 270);
+			
+			noStroke();
+			fill(191, 0, 0);
+			
+			beginShape();
+			vertex(0, 0);
+		    bezierVertex(15, -5, 8, 18, 3, 15);
+		    bezierVertex(-13, 17, -9, -5, -1, 1);
+			endShape();
+			
+			noFill();
+			strokeWeight(2);
+			stroke(232, 63, 63);
+			
+			arc(3, 5, 5, 5, 258, 398);
+			
+			stroke(158, 6, 6);
+			arc(-1, 10, 5, 5, 432, 558);
+			        
+			popMatrix();
+			return get(0, 0, 71, 87)
+		},
+	},
+	UI: {
+		heart: function(){
+			background(0, 0)
+			createPixels([
+    '   !"""#$$$           %&&&\'\'\'(',
+    '   !"""#$$$           %&&&\'\'\'(',
+    '   !"""#$$$           %&&&\'\'\'(',
+    '***+,,,-...///0   1222344455567778',
+    '999:;;;<<<<===>   ?@@@;;;;AAAA"""B',
+    '999:;;;<<<<===>   ?@@@;;;;AAAA"""B',
+    '999:;;;<<<<===>   ?@@@;;;;AAAA"""B',
+    'CCCDEEEFGGGHHHHIIIIIIIFJJJKKKKLLLM',
+    'CCCDEEEFGGGHHHHIIIIIIIFJJJKKKKLLLM',
+    'CCCDEEEFGGGHHHHIIIIIIIFJJJKKKKLLLM',
+    'NNNOPPPFGGGIIIIIIIIQQQRRRREEEPSSST',
+    '   USSSVWWWXXXXYYYXZZZ[]]]^^^_',
+    '   USSSVWWWXXXXYYYXZZZ[]]]^^^_',
+    '   USSSVWWWXXXXYYYXZZZ[]]]^^^_',
+    '    ```abbbEEEc[[[deeeffffgggh',
+    '       ibbbEEEc[[[jeeefkkk',
+    '       ibbbEEEc[[[jeeefkkk',
+    '       ibbbEEEc[[[jeeefkkk',
+    '           5555lll____1',
+    '           5555lll____1',
+    '           5555lll____1',
+    '           mmm7nnnommm',
+    '              pqqqr',
+    '              pqqqr',
+    '              pqqqr',
+], {
+    "0" : -598312,
+    "1" : -595222,    "2" : -993070,    "3" : -4165024,    "4" : -4561330,    "5" : -4954540,    "6" : -4559782,    "7" : -1386280,    "8" : -595228,    "9" : -4952998,    " " : -197380,    "!" : -2178886,    "\"" : -4559776,    "#" : -3377050,    "$" : -2983834,    "%" : -4556698,    "&" : -4954546,    "'" : -4953004,    "(" : -4558240,    ")" : -1,    "*" : -1386286,
+    "+" : -2578270,    "," : -4166566,    "-" : -2985376,    "." : -2983840,    "/" : -599848,    ":" : -4561318,    ";" : -3381676,    "<" : -2595244,    "=" : -2198944,    ">" : -2197402,    "?" : -1787218,    "@" : -3383224,    "A" : -4169644,    "B" : -2576734,    "C" : -4161940,    "D" : -3771808,    "E" : -3383212,    "F" : -2202028,    "G" : -1808812,    "H" : -2599870,
+    "I" : -2599864,    "J" : -2202022,    "K" : -2988454,    "L" : -3377044,    "M" : -1788754,    "N" : -3764098,    "O" : -3375508,    "P" : -3381670,    "Q" : -2205112,    "R" : -2203564,    "S" : -2979202,    "T" : -1787212,    "U" : -1389370,    "V" : -2198938,    "W" : -1805728,    "X" : -1810348,    "Y" : -2206648,    "Z" : -1020832,    "[" : -3386296,    "]" : -3781054,
+    "^" : -4171186,    "_" : -4168102,    "`" : -198922,    "a" : -3770266,    "b" : -4166572,    "c" : -3383218,    "d" : -2991538,    "e" : -2991532,    "f" : -2986912,    "g" : -200464,    "h" : -198928,    "i" : -3768724,    "j" : -3384754,    "k" : -2592154,    "l" : -3774886,    "m" : -991522,    "n" : -4555150,    "o" : -2971486,    "p" : -592138,    "q" : -4946824,
+    "r" : -2573644,
+}, 1)
+			return get(0, 0, 33, 26)
+		},
+		stamina: function(){
+			background(0, 0)
+			
+			noStroke()
+			
+			translate(-14, -12)
+			fill(0, 255, 0)
+			beginShape();
+			vertex(25,12);
+			vertex(14,31);
+			vertex(24,31);
+			vertex(14,56);
+			vertex(42,31);
+			vertex(32,30);
+			vertex(44,12);
+			endShape();
+			
+			return get(0, 0, 30, 45)
+		},
+	},
+};
+
+// CUSTOM FUNCTIONS \\
+const Funcs = (function(){
+	const _Funcs = {
+		dist: (a, b) => Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow((b.y - a.y), 2)),
+		radToDeg: (angle) => angle * (180 / Math.PI),
+		degToRad: (angle) => angle * (Math.PI / 180),
+		lerp: (a, b, t) => a + (b - a) * t,
+		weightedRandomness: (items, weights) => {
+			const arr = [];
+			items.forEach((item, index) => {
+				for (let i = 0; i < weights[index]; i ++){
+					arr.push(item);
+				}
+			})
+			
+			return arr;
+		},
+		onCanvas: (obj, cam) => { 
+			const sz = (obj.r ? obj.r : Math.max(obj.w, obj.h)) + 60; 
+			return obj.x + sz > cam.x - width / (2*cam.zoom) && obj.x < cam.x + width / (2*cam.zoom) + sz&&
+				   obj.y + sz > cam.y - height / (2*cam.zoom) && obj.y < cam.y + height / (2*cam.zoom) + sz 
+		},
+	};
+	return _Funcs;
+})();
+
+const Display = (function(){
+	const _Display = {
+		text: (msg, x, y, size, options={}) => {
+			options = {
+				title: false, 
+				align: 'center', 
+				lineSpacing: 24, 
+				letterSpacing: 1,
+				format: '',
+				...options
+			};
+			// Provides a way to do newline text cause it's not... there some for reason?
+			const font = options.title ? "Cinzel Decorative" : "Roboto";
+			ctx.font = `${options.format} ${size}px ${font}`;
+			ctx.letterSpacing = `${options.letterSpacing}px`
+			ctx.textAlign = options.align;
+			
+			const lines = msg.split("\n");
+			for (let i = 0; i < lines.length; i ++){
+				ctx.fillText(lines[i], x, y + i * options.lineSpacing, width);
+			}
+		},
+		capitalize: (txt) => txt[0].toUpperCase() + txt.slice(1),
+		overlay: (clr) => {
+			
+		},
+	};
+	return _Display;
+})();
+
+// INPUT \\
+class Keys {
+    constructor(){
+        this.keys = {
+        	'up': ['ArrowUp', 'KeyW'],
+        	'down': ['ArrowDown', 'KeyS'],
+        	'left': ['ArrowLeft', 'KeyA'],
+        	'right': ['ArrowRight', 'KeyD'],
+        	'zoomIn': ['KeyC'],
+        	'zoomOut': ['KeyX'],
+        	// 'inventoryLeft': ['KeyJ'],
+        	// 'inventoryDown': ['KeyK'],
+        	// 'inventoryRight': ['KeyL'],
+        	// 'inventoryUp': ['KeyI'],
+        	'toggleLock': ['KeyF'],
+        	'interact': ['KeyE'],
+        	'reset': ['KeyR'],
+        	'sprint': ['ShiftLeft'],
+        	'enter': ['Enter'],
+        	'inventory': ['KeyI'],
+        };
+        for (let i = 0; i < 9; i ++){
+        	this.keys[i + 1] = [`Digit${i + 1}`];
+        }
+        
+        this.pressed = {};
+        this.released = {};
+        this.clicked = {};
+        
+        document.addEventListener('keyup', (e) => {
+            delete this.pressed[e.code];
+            this.released[e.code] = true;
+        });
+        document.addEventListener('keydown', (e) => {
+            this.pressed[e.code] = true;
+            this.clicked[e.code] = true;
+            
+        });
+    }
+    update(){
+        for (let k in this.clicked) delete this.clicked[k];
+        for (let k in this.released) delete this.released[k];
+    }
+    keyByValue(obj, v){
+        return Object.keys(obj).find(k => obj[k].includes(v));
+    }
+    getAction(action, key){
+        for (let k in this.keys){
+                for (let v = 0; v < this.keys[k].length; v ++){
+                const value = this.keys[k][v];
+                if (value in action){
+                    const act = this.keyByValue(this.keys, value);
+                    if (act === key) return true;
+                }
+            }
+        }
+        return false;
+    }
+    press(key){
+        return this.getAction(this.pressed, key);
+    }
+    release(key){
+        return this.getAction(this.released, key);
+    }
+    click(key){
+        return this.getAction(this.clicked, key);
+    }
+}
+let keys = new Keys();
+
+class Mouse {
+    constructor(config){
+        this.x = mouseX;
+        this.y = mouseY;
+        
+        this.clicked = false;
+        this.released = false;
+        this.pressed = false;
+        
+        this.cam = config.cam;
+        
+        document.addEventListener('mouseup', () => {
+            this.released = true;
+            this.clicked = false;
+            this.pressed = false;
+        });
+        document.addEventListener('mousedown', () => {
+            this.released = false;
+            this.clicked = true;
+            this.pressed = true;
+        });
+    }
+    update(){
+        this.x = mouseX;
+        this.y = mouseY;
+        this.clicked = false;
+        this.released = false;
+    }
+    intersects(shape, obj){
+        if (shape === 'rect'){
+            return this.x > obj.x && this.x < obj.x + obj.w &&
+                   this.y > obj.y && this.y < obj.y + obj.h;
+        } else if (shape === 'circle') {
+            const r = obj.sz ? obj.sz / 2 : Math.max(obj.w, obj.h) / 2;
+            return Funcs.dist(this, obj) <= r;
+        }
+        return;
+    }
+}
+let mouse = new Mouse({ cam: null }); 	
+
+// PARTICLES \\
+class Particle {
+	constructor(config){
+		this.executable = 'run'
+		
+		// Position, sizing, and rotation
+		this.x = config.x;
+		this.y = config.y;
+		this.sz = config.sz;
+		this.angle = config.angle ?? 0;
+		
+		// Velocity
+		this.v = config.v;
+		
+		// Animation controllers
+		this.expandDir = config.expand ?? 0; // >0 for expanding, <0 for contracting
+		this.fade = config.fade;
+		
+		// Particle lifetime
+		this.maxLifetime = config.lifetime ?? 180;
+		this.lifetime = config.lifetime ?? 180;
+		
+		// Image
+		this.img = config.img;
+	}
+	display(){
+		imageMode(CENTER)
+		
+		pushMatrix()
+		translate(this.x, this.y)
+		rotate(this.angle)
+		
+		if (this.fade) tint(255, 255, 255, map(this.lifetime, 0, this.maxLifetime, 0, 255));
+		
+		image(this.img, 0, 0, this.sz, this.sz)
+		
+		popMatrix();
+		
+		noTint();
+	}
+	update(){
+		this.sz += this.expandDir;
+		this.x += this.v.x;
+		this.y += this.v.y;
+		
+		if (this.lifetime <= 0) this.dead = true
+		this.lifetime --;
+	}
+	run(){
+		this.display()
+		this.update()
+	}
+}
+
+// Inspired by QC, but not copied
+// PHYSICS OBJECTS \\
+class PhysicsObj {
+	constructor(config){
+		this.x = config.x;
+		this.y = config.y;
+		
+		if (config.circle){
+			this.r = config.r
+			this.body = config.body ?? Bodies.circle(this.x, this.y, this.r/2, {
+				object: this,
+				isStatic: config.static || false,
+			})
+		} else {
+			this.w = config.w;
+			this.h = config.h;
+			this.radius = config.radius || 0;
+			this.body = config.body ?? Bodies.rectangle(this.x, this.y, this.w, this.h, {
+				object: this,
+				isStatic: config.static || false,
+				chamfer: { radius: this.radius }
+			})
+		}
+		
+		Composite.add(engine.world, this.body)
+	}
+	updatePos(){
+		this.x = this.body.position.x;
+		this.y = this.body.position.y;
+		this.angle = this.body.angle;
+	}
+	updateBody(){
+		if (typeof this.offset === 'object'){
+			Body.setPosition(this.body, {
+				x: this.x + Math.cos(this.angle) * this.offset.x - this.offset.y * Math.sin(this.angle),
+				y: this.y + this.offset.x * Math.sin(this.angle) + this.offset.y * Math.cos(this.angle)
+			})
+		} else {
+			this.body.position.x = this.x;
+			this.body.position.y = this.y;
+		}
+		this.body.angle = this.angle
+	}
+	move(x, y){
+		Body.setVelocity(this.body, { x: x, y: y })
+	}
+}
+
+// ARENA \\
+class Shake {
+	constructor(game, config){
+		this.intensity = config.intensity;
+		this.timer = config.timer;
+		
+		this.game = game;
+	}
+	apply(){
+		if (this.timer > 0){
+			this.game.camera.x += Math.random() * (this.intensity + this.intensity + 1) - this.intensity;
+			this.game.camera.y += Math.random() * (this.intensity + this.intensity + 1) - this.intensity;
+			if (round(this.timer) % 120 === 0){
+				this.game.player.takeDamage(this.intensity)
+			}
+		}
+		this.timer --;
+	}
+}
+
+
+class Rock extends PhysicsObj {
+	constructor(game, config){
+		const verts = [
+			{ x: 244, y: 114 },
+			{ x: 175, y: 123 },
+			{ x: 102, y: 159 },
+			{ x: 76, y: 224 },
+			{ x: 73, y: 296 },
+			{ x: 118, y: 382 },
+			{ x: 215, y: 442 },
+			{ x: 404, y: 473 },
+			{ x: 477, y: 449 },
+			{ x: 509, y: 372 },
+			{ x: 495, y: 305 },
+			{ x: 461, y: 237 },
+			{ x: 407, y: 188 },
+			{ x: 317, y: 140 },
+			{ x: 260, y: 121 },
+			{ x: 243, y: 115 },
+		];
+		const poly = Bodies.fromVertices(config.x, config.y, verts, {
+			isStatic: false,
+			frictionStatic: 1,
+			frictionAir: 0.8,
+		})
+		super({ x: config.x, y: config.y, body: poly, })
+		
+		this.executable = 'display'
+		
+		this.x = config.x;
+		this.y = config.y;
+		
+		this.r = 100;
+		
+		this.game = game;
+	}
+	display(){
+		if (Funcs.onCanvas(this, this.game.camera)){
+			imageMode(CENTER)
+			image(imgs.objects.rock, this.x, this.y)
+		}
+		this.updatePos();
+	}
+}
+
+class Dome {
+	constructor(game){
+		this.r = 30000;
+		
+		this.game = game;
+		
+		// Event controllers
+		this.curEvent = 'earthquake'
+		this.eventTimer = 18000;
+		this.events = ['none', 'earthquake', 'freeze', 'heat']
+		
+		this.earthquakeCooldown = 0;
+		this.earthquake = new Shake(game, { intensity: random(10, 15), timer: random(120, 300) })
+		
+		this.temperature = 25;
+		
+		// Objects
+		this.crates = [];
+		this.rocks = Array.from({ length: 120 }, () => new Rock(this.game, { x: cos(random(0, 360)) * random(0, this.r), y: sin(random(0, 360)) * random(0, this.r) }));
+		this.rocks.forEach(rock => this.game.rocks.push(rock))
+	}
+	handleEvents(){
+		switch (this.curEvent){
+			case 'earthquake': 
+				if (this.earthquakeCooldown <= 0) {
+					this.earthquake = new Shake(this.game, { intensity: random(10, 15), timer: random(120, 300) })
+					this.earthquakeCooldown = random(300, 480);
+				}
+				this.earthquakeCooldown --;
+			break;
+			case 'freeze':
+				
+			break;
+			case 'heat':
+		}
+	}
+	display(){
+		fill(230, 226, 152)
+		ellipse(0, 0, this.r, this.r)
+	}
+}
+
+// ENTITY CLASS (for players and opponents) \\
+class Entity extends PhysicsObj {
+	constructor(game, config){
+		config.collides = true;
+		config.circle = true;
+		config.r = config.r ?? ENTITY_SIZE;
+		super(config)
+		
+		// Positions, sizing, and rotation
+		this.x = config.x;
+		this.y = config.y;
+		this.r = config.r;
+		this.angle = 0;
+		
+		this.game = game;
+	}
+	handleAttacks(weapon, condition){
+		const angle = weapon.owner.angle;
+		if (condition){
+			weapon.hit = false;
+			weapon.timer = 60
+		}
+		if (this === this.game.player){
+			if (mouse.released && weapon.timer <= 20){
+				weapon.hit = false;
+				weapon.timer = 60;
+			}
+		}
+		if (weapon.timer > 0){
+			switch (weapon.type){
+				case 'sword':
+					if (weapon.timer < 60 && weapon.timer > 30) {
+						weapon.angle = Funcs.lerp(weapon.angle, angle + Funcs.degToRad(55), 0.1);
+					}
+						
+					if (weapon.timer < 30) {
+						weapon.angle = Funcs.lerp(weapon.angle, angle - Funcs.degToRad(85), 0.2);
+					}
+				break;
+				case 'spear':
+					if (weapon.timer < 60 && weapon.timer > 30) {
+						weapon.offset.x = Funcs.lerp(weapon.offset.x, 20, 0.1)
+					}
+					if (weapon.timer < 30) {
+						weapon.offset.x = Funcs.lerp(weapon.offset.x, 180, 0.1)
+					}
+				break;
+				case 'axe':
+					if (weapon.timer < 60 && weapon.timer > 30) {
+						weapon.angle = Funcs.lerp(weapon.angle, angle + Funcs.degToRad(90), 0.4);
+					}
+					if (weapon.timer < 30) {
+							weapon.angle = Funcs.lerp(weapon.angle, angle - Funcs.degToRad(-95), 0.6);
+					}
+				break;
+			}
+		}
+		
+	}
+}
+
+class Item extends PhysicsObj {
+	static descriptions = {
+		'apple': "A red, juicy apple that restores 5 HP",
+		'steak': "A meaty chunk of steak that heals you of 10 HP",
+	};
+	constructor(game, config){
+		config.circle = true;
+		config.r = 40;
+		super(config)
+		
+		this.executable = 'run'
+		
+		this.x = config.x;
+		this.y = config.y;
+		
+		this.type = config.type;
+		
+		this.game = game;
+	}
+	display(){
+		fill(255, 0, 255)
+		// ellipse(this.x, this.y, this.r, this.r)
+		if (!this.inInventory) image(imgs.items[this.type], this.x, this.y, this.r, this.r)
+		
+		let minDist = Infinity;
+			let closest = null;
+			const allItems = [...this.game.weapons, ...this.game.items].filter(item => !item.owned && !item.inInventory)
+			allItems.forEach(item => {
+				const distance = Funcs.dist(item, this.game.player);
+				if (distance <= minDist){
+					minDist = distance
+					closest = item;
+				}
+			});
+			if (!this.inInventory && closest === this && Funcs.dist(this, this.game.player) <= 120){
+				fill(0)
+				ctx.fillStyle = 'black'
+				Display.text("Press E to pick up", this.x + 60, this.y - 30, 24, { format: 'italic bold', align: 'center' })
+				if (keys.click("interact")){
+					this.game.player.items.push(this)
+					this.inInventory = true;
+				}
+			}
+	}
+	update(){}
+	collide(body, type){
+		if (type === 'start'){
+			if (body === this.game.player){
+				this.game.player.items.push(this)
+				this.dead = true;
+			}
+		}
+	}
+	run(){
+		this.update();
+		this.display()
+	}
+}
+
+
+class Weapon extends PhysicsObj {
+	constructor(game, config){
+		config.static = false;
+		config.circle = true;
+		config.r = 59;
+		super(config)
+		Body.set(this.body, { isSensor: true })
+		this.game = game;
+		this.executable = 'run'
+		
+		// Position, sizing, and rotation
+		this.x = config.x;
+		this.y = config.y;
+		this.r = config.r;
+		this.angle = 0;
+		this.offset = { x: 90, y: 0 }
+		
+		// Weapon type
+		this.type = config.type;
+		this.material = config.material;
+		
+		// Map weapon damage for swords and axes based on material
+		this.damageMap = {
+			spear: {
+				"wooden" : 1,
+				"stone" : 2,
+				"iron" : 4,
+			},
+			sword: {
+				"wooden" : 2,
+				"stone" : 3,
+				"iron" : 5,
+			},
+			axe: {
+				"wooden" : 3,
+				"stone" : 4,
+				"iron" : 6,
+			},
+		};
+		this.durabilityMap = {
+			spear: {
+				"wooden" : 7,
+				"stone" : 8,
+				"iron" : 15,
+			},
+			sword: {
+				"wooden" : 7,
+				"stone" : 10,
+				"iron" : 20,
+			},
+			axe: {
+				"wooden" : 10,
+				"stone" : 12,
+				"iron" : 22,
+			},
+		};
+		this.durability = this.durabilityMap[this.type][this.material];
+		
+		// Attack controllers
+		this.timer = 0
+		this.hit = false;
+		
+		// Target entity
+		this.target = null;
+		
+		// Visibility (if in inventory)
+		this.inInventory = false;
+	}
+	display(){
+		pushMatrix()
+		translate(this.x, this.y)
+		rotate(Funcs.radToDeg(this.angle))
+		// fill(0, 0, 255)
+		// ellipse(this.offset.x, this.offset.y, this.r, this.r)
+		
+		const img = imgs.weapons[`${this.material}_${this.type}`];
+		if (!this.inInventory) image(img, this.offset.x, this.offset.y, 120, img.height * (120/img.width))
+		
+		if (this.owned){
+			if (this.owner === this.game.player){
+				this.inInventory = this.game.player.weapon !== this;
+			}
+		}
+		
+		popMatrix()
+		if (!this.owned){
+			let minDist = Infinity;
+			let closest = null;
+			const allItems = [...this.game.weapons, ...this.game.items].filter(item => !item.owned && !item.inInventory)
+			allItems.forEach(item => {
+				const distance = Funcs.dist(item, this.game.player);
+				if (distance <= minDist){
+					minDist = distance
+					closest = item;
+				}
+			});
+			if (Funcs.dist(this, this.game.player) <= 120){ 
+				if (!this.inInventory && closest === this && !this.game.player.inventoryFull){
+					fill(0)
+					ctx.fillStyle = 'black'
+					Display.text("Press E to pick up", this.x + 60, this.y - 30, 24, { format: 'italic bold', align: 'center' })
+					if (keys.click("interact") && !this.game.player.inventoryFull){
+						this.owned = true;
+						this.owner = this.game.player;
+						this.game.player.weapons.push(this)
+					}
+				} else if (closest === this && this.game.player.inventoryFull){
+					ctx.fillStyle = 'black'
+					Display.text("Inventory Full", this.x + 60, this.y - 30, 24, { format: 'italic bold', align: 'center' })
+				}
+			}
+		}
+	}
+	update(){
+		if (this.owned){
+			this.x = this.owner.x;
+			this.y = this.owner.y;
+			if (this.timer <= 0 || !['sword', 'axe'].includes(this.type)) this.angle = this.owner.angle
+			if (this.type === 'spear') this.angle = this.owner.angle - Funcs.degToRad(10);
+			if (this.timer <= 0 || this.type !== 'spear') this.offset = { x: 102, y: 36 };
+			if (this.timer <= 0){
+				
+				this.hit = false;
+			}
+			this.target = this.owner.target;
+			if (this.owner.dead){
+				this.owned = false;
+				this.owner = null;
+				this.target = null;
+			}
+			
+			if (this.owned){
+				if (this.durability <= 0){
+					if (this.owner === this.game.player){
+						this.game.player.weapons.forEach((weapon, index) => {
+							if (weapon === this){
+								this.game.player.weapons.splice(index, 1)
+								this.game.player.weapon = undefined;
+							}
+						})
+					}
+				}
+			}
+		}
+		this.timer --;
+		this.updateBody()
+	}
+	collide(body, type){
+		if (type === 'start'){
+			if (body.label === 'enemy'){
+				if (!this.owned && body.object.targetWeapon === this){
+					if (body.object.weapon === undefined) body.object.weapon = this;
+					this.owned = true;
+					this.owner = body.object;
+				}
+			} else {
+				if (keys.click("interact")){
+					this.game.player.weapon = this;
+					this.owner = this.game.player;
+					this.owned = true;
+				}
+			}
+			
+			
+			const damage = this.damageMap[this.type][this.material]
+			if (this.owned && !this.hit && this.timer > 0){
+				if (this.owner.body.label === 'enemy'){
+					if (body.object === this.target){
+						this.target.takeDamage(damage, this.owner, 1);
+						this.durability --;
+						
+						this.game.particles.push(new Particle({
+							x: this.target.x, y: this.target.y,
+							expand: 0.5, fade: true,
+							img: imgs.particles.hit * (this.damage / 6),
+							sz: 40,
+							lifetime: 30,
+							v: { y: 0, x: 0 },
+						}))
+						this.hit = true;
+					}
+				} else if (this.owner === this.game.player) {
+					this.game.enemies.forEach(e => {
+						if (body.object === e) {
+							e.takeDamage(damage, this.game.player, 1)
+							this.game.particles.push(new Particle({
+								x: this.body.position.x, y: this.body.position.y,
+								expand: 1, fade: true,
+								img: imgs.particles.hit,
+								sz: 40,
+								lifetime: 30,
+								v: { y: 0, x: 0 },
+							}))
+							this.hit = true;
+							this.durability --;
+						}
+					})
+					this.game.crates.forEach(c => {
+						if (body.object === c){
+							c.health -= damage;
+							this.game.particles.push(new Particle({
+								x: c.x, y: c.y,
+								expand: 1, fade: true,
+								img: imgs.particles.hit,
+								sz: 40,
+								lifetime: 30,
+								v: { y: 0, x: 0 },
+							}))
+							this.hit = true;
+						}
+					})
+				}
+			}
+		}
+	}
+	run(){
+		this.display()
+		this.update()
+	}
+}
+
+class Crate extends PhysicsObj {
+	constructor(game, config){
+		const sz = random(90, 150)
+		config.w = sz;
+		config.h = sz;
+		config.circle = false;
+		config.radius = 5;
+		super(config)
+		Body.set(this.body, { frictionStatic: 0.8, frictionAir: 0.8 })
+		
+		this.game = game;
+		
+		this.executable = 'run'
+		this.x = config.x;
+		this.y = config.y;
+		
+		this.w = sz;
+		this.h = sz;
+		
+		this.dead = false;
+		this.health = 10;
+	}
+	update(){
+		if (!this.init){
+			this.itemsList = Funcs.weightedRandomness([
+				new Item(this.game, {
+					x: this.x + random(-5, 5),
+					y: this.y + random(-5, 5),
+					type: "apple",
+				}),
+				new Weapon(this.game, {
+					x: this.x + random(-5, 5),
+					y: this.y + random(-5, 5),
+					type: "sword",
+					material: "iron",
+				}),
+				new Weapon(this.game, {
+					x: this.x + random(-5, 5),
+					y: this.y + random(-5, 5),
+					type: "spear",
+					material: "iron",
+				}),
+				// new Weapon(this.game, {
+				// 	x: this.x,
+				// 	y: this.y,
+				// 	type: "sword",
+				// 	material: "stone",
+				// }),
+			], [70, 3, 3, 4]);
+			this.itemNum = round(random(1, 3));
+			this.items = [];
+			for (let i = 0; i < this.itemNum; i ++){
+				const index = Math.floor(Math.random() * this.itemsList.length - 1)
+				const item = this.itemsList[index]
+				this.items.push(item)
+				this.itemsList.splice(index, 1)
+			}
+			this.init = true;
+		}
+		if (this.dead){
+			this.items.forEach(item => {
+				if (item instanceof Item){
+					this.game.items.push(item)
+				} else if (item instanceof Weapon){
+					this.game.weapons.push(item)
+				}
+			})
+		}
+	}
+	display(){
+		fill(255, 255, 0)
+		// rectMode(CENTER)
+		// rect(this.x, this.y, this.w, this.h, this.radius)
+		imageMode(CENTER)
+		image(imgs.objects.crate, this.x, this.y, this.w, this.h)
+	}
+	run(){
+		if (Funcs.onCanvas(this, this.game.camera)){
+			this.display()
+			this.update()
+			this.updatePos()
+		}
+	}
+}
+
+
+class Log extends PhysicsObj {
+	constructor(game, config){
+		config.w = 80;
+		config.h = 240;
+		super(config)
+		Body.setAngle(this.body, Funcs.degToRad(config.angle || 90));
+		Body.set(this.body, { frictionStatic: 0.6, frictionAir: 0.8 })
+		
+		this.executable = 'run'
+		
+		this.x = config.x;
+		this.y = config.y;
+		this.angle = config.angle || 90;
+		this.w = 80;
+		this.h = 240;
+		
+		this.game = game;
+	}
+	display(){
+		rectMode(CENTER)
+		
+		
+		pushMatrix();
+		translate(this.x, this.y)
+		rotate(Funcs.radToDeg(this.angle))
+		fill(77, 52, 11)
+		rect(0, 0, this.w, this.h, 7)
+		popMatrix();
+	}
+	update(){
+		this.updatePos()
+	}
+	run(){
+		if (Funcs.onCanvas(this, this.game.camera)){
+			this.update()
+			this.display()
+		}
+	}
+}
+
+class Campfire {
+	
+}
+
+class Player extends Entity {
+	constructor(game, config){
+		super(game, config)
+		
+		// Velocity
+		this.v = { x: 0, y: 0 };
+		this.speed = 4;
+		
+		// Upgradable stats
+		this.stamina = 100;
+		this.maxStamina = 100;
+		this.health = 100;
+		this.maxHealth = 100;
+		this.maxSpeed = 4;
+		
+		// UI elements
+		this.displayHealth = this.health;
+		this.displayStamina = this.stamina;
+		
+		// Targeting / enemy locking
+		this.target = mouse;
+		this.closest = undefined
+		
+		// Inventory Management
+		this.weapons = [
+			new Weapon(this.game, { x: this.x + 90, y: this.y, type: "sword", material: "iron" })
+		];
+		this.weapon = this.weapons[0];
+		this.items = [];
+		
+		
+		Body.set(this.body, { label: "player" })
+	}
+	takeDamage(amt){
+		this.health -= amt;
+	}
+	handleStats(){
+		this.displayHealth = Funcs.lerp(this.displayHealth, this.health, 0.1);
+		this.displayStamina = Funcs.lerp(this.displayStamina, this.stamina, 0.1);
+		
+		this.health += 0.02;
+		
+		this.stamina = constrain(this.stamina, 0, this.maxStamina)
+		this.health = constrain(this.health, 0, this.maxHealth)
+	}
+	display(){
+		pushMatrix();
+		translate(this.x, this.y)
+		rotate(Funcs.radToDeg(this.angle))
+		
+		pushStyle();
+		strokeWeight(1)
+		stroke(255, 0, 0)
+		line(154, 0, 0, 0)
+		
+		
+		popStyle();
+		
+		fill(0)
+		ellipse(0, 0, this.r, this.r)
+		
+		popMatrix();
+		
+	}
+	handleLocking(){
+		let minDist = Infinity;
+		this.game.enemies.forEach(e => {
+			const distance = Funcs.dist(this, e)
+			if (distance < minDist) {
+				minDist = distance;
+				this.closest = e;
+			}
+		})
+		if (this.closest){
+			const locked = this.target===this.closest
+			pushMatrix();
+			translate(0, sin(frameCount * (locked ? 5 : 3)) * (locked ? 8 : 4) - 40)
+			if (locked){
+				fill(235, 143, 38)
+				rect(this.closest.x - 7, this.closest.y - 150, 13, 30)
+			} else {
+				fill(255)
+			}
+			triangle(this.closest.x - 20, this.closest.y - 120, this.closest.x, this.closest.y - 100, this.closest.x + 20, this.closest.y - 120)
+			popMatrix()
+			
+			if (this.closest.dead) this.target = mouse;
+			if (keys.click('toggleLock')){
+				if (this.target === this.closest && Funcs.dist(this, this.closest) <= 400){
+					this.target = mouse;
+				} else {
+					this.target = this.closest;
+				}
+			}
+		}
+	}
+	update(){
+		this.handleLocking();
+		if (this.target === this.closest){
+			this.angle = Math.atan2(
+				this.target.y - this.y,
+				this.target.x - this.x
+			)
+		} else if (this.target === mouse) {
+			this.angle = Math.atan2(
+				(this.target.y - height/2) / (this.game.camera.zoom) + this.game.camera.y - this.y,
+				(this.target.x - width/2) / (this.game.camera.zoom) + this.game.camera.x - this.x
+			)
+		}
+		Body.setAngle(this.body, this.angle)
+		
+		if (keys.press("left")) {
+			this.v.x = -this.speed;
+		} else if (keys.press("right")) {
+			this.v.x = this.speed;
+		} else {
+			this.v.x = Funcs.lerp(this.v.x, 0, 0.15)
+		}
+		
+		if (keys.press("up")) {
+			this.v.y = -this.speed;
+		} else if (keys.press("down")) {
+			this.v.y = this.speed;
+		} else {
+			this.v.y = Funcs.lerp(this.v.y, 0, 0.15)
+		}
+		
+		if (keys.press("sprint") && this.stamina > 0){
+			this.speed = this.maxSpeed + 2;
+			this.stamina -= 0.2;
+		} else {
+			this.speed = this.maxSpeed
+			this.stamina += 0.1;
+		}
+		this.move(this.v.x, this.v.y)
+		this.updatePos();
+		
+		if (this.weapon){
+			this.weapon.owned = true
+			this.weapon.owner = this
+			this.weapon.run()
+		}
+		
+		this.handleStats()
+	}
+	run(){
+		if (this.game.active) this.update();
+		this.display();
+		if (this.weapon) this.handleAttacks(this.weapon, mouse.released && this.weapon.timer <= 0)
+	}
+}
+
+class Enemy extends Entity {
+	constructor(game, config){
+		super(game, config)
+		
+		Body.setMass(this.body, 10000)
+		Body.set(this.body, { label: "enemy" })
+		
+		this.executable = 'run'
+		this.game = game;
+		
+		// Position, sizing, and rotation
+		this.x = config.x;
+		this.y = config.y;
+		this.r = config.r;
+		this.angle = random(0, 360);
+		
+		// Velocity
+		this.v = { x: 0, y: 0 };
+		this.prevV = this.v; // Previous velocity for stumbling back
+		this.speed = 3;
+		
+		// Range and player detection
+		this.range = config.range;
+		this.detected = false;
+		this.target = null;
+		
+		// Weapon finding
+		this.hasWeapon = false; // Bokoblins will get a weapon
+		this.targetWeapon = null; // When a player is found, the bokoblin will run to this weapon
+		this.target = null;
+		this.attackTimer = 0;
+		
+		// Stunning (for knockback)
+		this.stunTimer = 0;
+	}
+	takeDamage(amt, source, kb){
+		this.health -= amt;
+		if (source){
+			if (source.angle){
+				this.stunTimer = 10;
+				Body.setVelocity(this.body, {
+					x: Math.cos(source.angle) * (kb || 3),
+					y: Math.sin(source.angle) * (kb || 3),
+				});
+			}
+		}
+	}
+	handleDetection() {
+	    const range = this.range;
+	    const points = 25;
+	    let startPos = {
+	        x: this.x,
+	        y: this.y,
+	    };
+	    for(let i = 0; i < points; i ++) {
+	        const angle = Funcs.radToDeg(this.angle) - 45 + Funcs.radToDeg(2 * Math.PI * i / points);
+	        const newRange = i > 7 ? 88 : range;
+	        const x = newRange * cos(angle);
+	        const y = newRange * sin(angle);
+	        let endPos = {
+	            x: this.x+x,
+	            y: this.y+y
+	        };
+	        
+	        // Collisions sorting by AI
+	        // Sorts collisions so enemy view is blocked by objects
+	        let collisions = Query.ray(
+	            Composite.allBodies(engine.world),
+	            startPos,
+	            endPos
+	        ).sort((a, b) => {
+			    const da = Funcs.dist(startPos, a.body.position);
+			    const db = Funcs.dist(startPos, b.body.position);
+			    return da - db;
+			});
+	        strokeWeight(1)
+	        stroke(0, 0, 255)
+	        let inactive = false;
+	        for (let c of collisions){
+				if(c.body.object instanceof Crate || c.body.object instanceof Rock) {
+					break;
+				}
+				if(c.body.object instanceof Player && !inactive && !this.noticed) {
+					this.attackTimer = 600;
+					this.noticed = true;
+					if (this.camp) this.camp.alertTimer = 600;
+					stroke(0, 255, 0)
+					break;
+				}
+	        }
+	        
+	  		// line(this.x, this.y, this.x + x, this.y+y);
+			// strokeWeight(6);
+			// point(this.x + x, this.y + y)
+	    }
+	    noStroke();
+	}
+	collide(body, type){
+		
+	}
+	run(){
+		if (Funcs.onCanvas(this, this.game.camera)){
+			this.updatePos()
+			if (this.game.active) {
+				this?.runAI();
+				this.update();
+				this.handleDetection();
+			}
+			this.display();
+		}
+	}
+}
+
+class Bokoblin extends Enemy {
+	constructor(game, config){
+		config.range = 296;
+		super(game, config)
+		
+		// Bokoblin camp, if any
+		this.camp = config.camp || null;
+		
+		// Original position
+		this.origin = { x: config.x, y: config.y };
+		
+		// AI and attacking
+		this.target = null;
+		this.hasWeapon = false;
+		this.targetWeapon = null;
+		this.attackTimer = 0;
+		this.attackDelay = 0;
+		this.suspicion = 0;
+		this.noticed = false;
+		
+		// Health
+		this.health = 20;
+	}
+	runAI(){
+		if (this.attackTimer > 0 && this.noticed){
+			if (!this.hasWeapon && this.targetWeapon){
+				this.target = this.targetWeapon;
+			} else if (this.hasWeapon || !this.targetWeapon) {
+				this.target = this.game.player;
+			} else {
+				this.target = this.origin;
+			}
+		} else {
+			this.noticed = false;
+		}
+	}
+	collide(body, type){
+		if (type === 'start'){
+			if (body.object === this.targetWeapon){
+				this.hasWeapon = true;
+				this.targetWeapon.owner = this;
+				this.targetWeapon.owned = true;
+				this.weapon = this.targetWeapon;
+			}
+		}
+	}
+	update(){
+		if (this.target !== null && this.noticed){
+			this.angle = Math.atan2(this.target.y - this.y, this.target.x - this.x)
+			
+			if (Funcs.dist(this, this.target) >= 160 || this.target !== this.game.player) {
+				this.v.x = Math.cos(this.angle) * this.speed;
+				this.v.y = Math.sin(this.angle) * this.speed;
+			}
+		}
+		if (this.stunTimer <= 0) this.move(this.v.x, this.v.y)
+		this.stunTimer --;
+		if (this.camp){
+			if (this.camp.alertTimer >= 500){
+				this.attackTimer = 600;
+				this.noticed = true;
+			}
+		}
+		
+		this.attackTimer --;
+		
+		if (this.hasWeapon){
+			this.handleAttacks(this.weapon, this.weapon.timer <= 0 && Funcs.dist(this, this.game.player) <= 160 && this.attackTimer > 0)
+		}
+	}
+	display(){
+		imageMode(CENTER)
+		pushMatrix()
+		translate(this.x, this.y)
+		rotate(Funcs.radToDeg(this.angle))
+		
+		// fill(255, 0, 0)
+		// ellipse(0, 0, this.r, this.r)
+		
+		
+		pushStyle();
+		strokeWeight(1)
+		stroke(255, 0, 0)
+		line(432, 0, 0, 0)
+		
+		pushMatrix();
+		rotate(-90)
+		image(imgs.entities.bokoblin, 0, 0, imgs.entities.bokoblin.width * (70/imgs.entities.bokoblin.height), 70);
+		popMatrix()
+		
+		popStyle();
+		popMatrix()
+		
+		if (Funcs.dist(this, this.game.player) <= 260 || this.attackTimer > 0){
+			fill(70)
+			rect(this.x - 16, this.y - 100, 50, 8)
+			fill(255, 0, 0)
+			rect(this.x - 16, this.y - 100, map(this.health, 0, 20, 0, 50), 8)
+		}
+	}
+}
+
+class Laser {
+	constructor(config){}
+	
+}
+
+class GuardianLeg {
+	static maxLength = 500;
+	constructor(config){
+		this.points = this.origin = config.points;
+		this.stepSize = 300;
+		this.angle = config.angle;
+	}
+	display(){
+		// ChatGPT:
+		// - Guided me on how to use the quadraticCurveTo function to make the leg
+		// - How to bend the leg based on how close the points were
+		// Stackoverflow
+		// Provided quadratic Bezier formula to place segments properly on the leg
+		
+		const x1 = this.points[0][0],  y1 = this.points[1][0];
+		const x2 = this.points[0][1], y2 = this.points[1][1];
+		
+		const dx = x2 - x1, dy = y2 - y1, distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
+		const mx = (x1 + x2) / 2;
+		const my = (y1 + y2) / 2;
+		const bend = Math.max(0, 1 - distance / GuardianLeg.maxLength)
+		
+		const nx = -dy / distance, ny = dx / distance;
+		
+		const bendStrength = 180;
+		const cx = mx + nx * bend * bendStrength;
+		const cy = my + ny * bend * bendStrength;
+		
+		ctx.strokeStyle = 'rgb(240, 240, 240)'
+		ctx.lineWidth = 12;
+		
+		ctx.beginPath();
+		ctx.moveTo(x1, y1);
+		ctx.quadraticCurveTo(cx, cy, x2, y2);
+		ctx.stroke();
+		
+		const points = 11;
+		for (let i = 0; i < points; i ++){
+			const t = i / points;
+			const px = Math.pow(1 - t, 2) * x1 + 2 * (1 - t) * t * cx + Math.pow(t, 2) * x2;
+			const py = Math.pow(1 - t, 2) * y1 + 2 * (1 - t) * t * cy + Math.pow(t, 2) * y2;
+			
+			const dx = 2 * (1 - t) * (cx - x1) + 2 * t * (x2 - cx);
+			const dy = 2 * (1 - t) * (cy - y1) + 2 * t * (y2 - cy);
+			const angle = atan2(dy, dx)
+			
+			pushMatrix();
+			
+			translate(px, py)
+			rotate(angle+-38)
+			
+			fill(171, 171, 171)
+			
+			beginShape();
+			vertex(10, 10)
+			vertex(-10, 10)
+			vertex(5, 2)
+			vertex(10, -10)
+			endShape();
+			
+			popMatrix();
+		}
+	}
+}
+
+class Guardian extends Enemy {
+	constructor(game, config){
+		config.circle = true;
+		config.r = 300;
+		super(game, config)
+		
+		this.game = game;
+		this.executable = 'run'
+		
+		// Legs
+		this.legs = Array.from({ length: 6 }, (_, i) => {
+			const points = 6;
+			const angle = 2 * Math.PI * i / points;
+			const x1 = this.x + Math.cos(angle) * this.r / 2;
+			const y1 = this.y + Math.sin(angle) * this.r / 2;
+			const x2 = this.x + Math.cos(angle) * GuardianLeg.maxLength;
+			const y2 = this.y + Math.sin(angle) * GuardianLeg.maxLength;
+			
+			return new GuardianLeg({ points: [
+				[x1, x2],
+				[y1, y2]
+			], angle })
+		});
+		
+		
+		this.step = 0; // Which leg should be moving
+		this.stepTimer = 20;
+		this.targets = new Array(this.legs.length);
+		
+		this.speed = 5;
+	}
+	collide(body, type){}
+	display(){
+		fill(0)
+		ellipse(this.x, this.y, this.r, this.r)
+		this.legs.forEach(leg => {
+			fill(255, 255, 0)
+			ellipse(leg.points[0][0], leg.points[1][0], 20, 20)
+			fill(255, 0, 0)
+			ellipse(leg.points[0][1], leg.points[1][1], 20, 20)
+			
+			// stroke(0, 255, 0)
+			// line(leg.points[0][0], leg.points[1][0], leg.points[1][0], leg.points[1][1])
+			noStroke()
+			leg.display()
+		})
+	}
+	update(){
+		this.angle = Math.atan2(this.game.player.y - this.y, this.game.player.x - this.x)
+		this.move(Math.cos(this.angle) * this.speed, Math.sin(this.angle) * this.speed)
+		this.legs.forEach((leg, index) => {
+			const points = 6;
+			const angle = this.angle + leg.angle;
+			const x1 = this.x + Math.cos(angle) * this.r / 2;
+			const y1 = this.y + Math.sin(angle) * this.r / 2;
+			const x2 = this.x + Math.cos(angle) * GuardianLeg.maxLength;
+			const y2 = this.y + Math.sin(angle) * GuardianLeg.maxLength;
+			
+			if (this.step !== index) {
+				// leg.points = [[x1, x2], [y1, y2]]
+				
+				leg.points[0][0] = x1;
+				leg.points[1][0] = y1;
+			} else {
+				const target = { x: this.x + Math.cos(this.angle + leg.angle) * leg.stepSize, y: this.y + Math.sin(this.angle + leg.angle) * leg.stepSize };
+				
+				// const distance = Funcs.dist(target, this)
+				// const minDist = 303;
+				
+				// if (distance < minDist){
+				// 	const s = minDist / distance;
+				// 	target.x = this.x + (target.x - this.x) * s;
+				// 	target.y = this.y + (target.y - this.y) * s;
+				// }
+				
+				leg.points[0][0] = x1;
+				leg.points[1][0] = y1;
+				leg.points[0][1] = Funcs.lerp(leg.points[0][1], target.x, 0.3)
+				leg.points[1][1] = Funcs.lerp(leg.points[1][1], target.y, 0.3)
+				
+				// if (distance < minDist){
+				// 	const s = minDist / distance;
+				// 	leg.points[0][1] = this.x + (leg.points[0][1] - this.x) * s;
+				// 	leg.points[1][1] = this.y + (leg.points[0][1] - this.y) * s;
+				// }
+				
+				// if (Funcs.dist({ x: leg.points[0][1], y: leg.points[1][1] }, target) <= 20){
+				// 	const footAngle = Math.atan2(leg.points[1][1] - this.y, leg.points[0][1] - this.x)
+					
+				// 	this.move(Math.cos(footAngle) * 2, Math.sin(footAngle) * 2)
+				// this.step ++;
+				// }
+				// println(Funcs.radToDeg(Math.abs(angle - this.angle)))
+
+				let diff = leg.angle - 38;
+				while (diff > Math.PI) diff -= Math.PI * 2;
+				while (diff < -Math.PI) diff += Math.PI * 2;
+				
+				
+				leg.stepSize = diff < Funcs.degToRad(60) ? 512 : 250;
+			}
+		})
+		// println(Funcs.radToDeg(this.angle))
+		// this.step = this.step % (this.legs.length + (round(Funcs.radToDeg(this.angle) % 60)));
+		if (this.stepTimer <= 0) {
+			this.step ++;
+			this.stepTimer = 5;
+		}
+		this.stepTimer --;
+		this.step = this.step % this.legs.length;
+	}
+	runAI(){}
+}
+
+class Camp {
+	constructor(game, config){
+		this.executable = 'run';
+		this.game = game;
+		this.dome = this.game.dome;
+		
+		// Number of Bokoblins in the camp
+		// this.num = Math.round(random(3, 5))
+		this.num = 2;
+		
+		// Positions
+		this.x = config.x
+		this.y = config.y
+		
+		// Available weapons
+		this.weapons = [
+			new Weapon(this.game, {
+				x: this.x - 102,
+				y: this.y,
+				type: "spear",
+				material: "iron"
+			}),
+			new Weapon(this.game, {
+				x: this.x - 152,
+				y: this.y,
+				type: "spear",
+				material: "iron"
+			}),
+			new Weapon(this.game, {
+				x: this.x - 275,
+				y: this.y,
+				type: "sword",
+				material: "iron",
+			}),
+			// new Weapon(this.game, {
+			// 	x: this.x - 379,
+			// 	y: this.y,
+			// 	type: "axe",
+			// 	material: "stone",
+			// }),
+		];
+		this.availableWeapons = Array.from({ length: this.weapons.length }, (_, i) => i)
+		this.weapons.forEach(weapon => this.game.weapons.push(weapon));
+		
+		// Alert all members of camp
+		this.alerted = false;
+		this.alertTimer = 0;
+		
+		// Spawn Bokoblins
+		const bokoblins = [
+			new Bokoblin(this.game, {
+				x: this.x - 160,
+				y: this.y,
+				camp: this,
+			}),
+			new Bokoblin(this.game, {
+				x: this.x + 160,
+				y: this.y,
+				camp: this,
+			}),
+			new Bokoblin(this.game, {
+				x: this.x,
+				y: this.y - 160,
+				camp: this,
+			}),
+			new Bokoblin(this.game, {
+				x: this.x,
+				y: this.y + 160,
+				camp: this,
+			}),
+		];
+		bokoblins.forEach(bokoblin => this.game.enemies.push(bokoblin))
+		this.game.enemies.forEach(e => {
+			if (e.camp === this){
+				if (!e.hasWeapon && this.weapons.length > 0){
+					const index = floor(random(0, this.weapons.length))
+					const weapon = this.weapons[index]
+					e.targetWeapon = weapon
+					this.weapons.splice(index, 1)
+				}
+			}
+		})
+		
+		// Spawn logs
+		const logDist = 360;
+		this.logs = [
+			new Log(this.game, { x: this.x - logDist, y: this.y, angle: 2 }),
+			new Log(this.game, { x: this.x + logDist, y: this.y, angle: 2 }),
+			new Log(this.game, { x: this.x, y: this.y - logDist, angle: 0 }),
+			new Log(this.game, { x: this.x, y: this.y + logDist, angle: 0 }),
+		];
+		this.logs.forEach(log => this.game.logs.push(log))
+		
+		// Spawn crates
+		const crateNum = round(random(3, 5))
+		this.crates = Array.from({ length: crateNum, }, () => new Crate(this.game, { x: this.x -logDist - 200, y: this.y -logDist - 200 }))
+		this.crates.forEach(crate => this.game.crates.push(crate))
+	}
+	display(){}
+	update(){
+		if (!this.cleaned){
+			// Remove rocks from nearby area
+			const cleanRadius = 1000;
+			this.game.rocks.forEach((rock, index) => {
+				if (Funcs.dist(rock, this) <= cleanRadius) {
+					rock.dead = true;
+				}
+			})
+			// this.game.logs.forEach((log, index) => {
+			// 	this.logs.forEach(campLog => {
+			// 		if (log === campLog){
+			// 			log.x = campLog.x;
+			// 			log.y = campLog.y
+			// 		}
+			// 	}) 
+			// })
+			this.cleaned = true;
+		}
+		this.alertTimer --;
+	}
+	run(){
+		if (Funcs.onCanvas(this, this.game.camera)){
+			this.display()
+			this.update()
+		}
+	}
+}
+
+class Camera {
+	constructor(game, config){
+		this.game = game;
+		
+		// Positioning
+		this.x = config.target.x || 0;
+		this.y = config.target.y || 0;
+		
+		// Camera's target/focus
+		this.target = config.target;
+		
+		// How fast camera finds player (for smooth mode)
+		this.speed = config.speed; 
+		
+		// Handle default zoom and zoom constraints
+		this.zoom = 0.4;
+		this.maxZoom = config.zoomLimits.max;
+		this.minZoom = config.zoomLimits.min;
+		
+		// Follow mode (instant/smooth)
+		this.mode = 'smooth'
+	}
+	start(){
+		pushMatrix();
+		translate(width / 2, height / 2)
+		scale(this.zoom)
+		translate(-this.x, -this.y)
+	}
+	end(){
+		popMatrix()
+	}
+	handleZoom(){
+		if (keys.press("zoomIn")){
+			this.zoom += 0.01;
+		} else if (keys.press("zoomOut")){
+			this.zoom -= 0.01;
+		}
+		this.zoom = constrain(this.zoom, this.minZoom, this.maxZoom)
+	}
+	follow(){
+		const targetX = this.target.x;
+		const targetY = this.target.y;
+		
+		switch (this.mode){
+			case 'smooth':
+				this.x = lerp(this.x, targetX, this.speed)
+				this.y = lerp(this.y, targetY, this.speed)
+			break;
+			case 'instant':
+				this.x = targetX, this.y = targetY;
+			break;
+		}
+	}
+	run(){
+		this.follow()
+		this.handleZoom()
+	}
+}
+
+const Scenes = (function(){
+	const _Scenes = {
+		'menu': function(){},
+		'game': function(g){
+			background(255)
+			g.dome.handleEvents()
+			g.dome.display()
+			
+			if (g.dome.curEvent === 'earthquake' && g.active) g.dome.earthquake.apply()
+			g.camera.start()
+			
+			g.player.run()
+			g.runObjs()
+			
+			g.camera.end()
+			g.camera.run()
+			ctx.filter = 'none'
+			
+			if (keys.click('inventory')) g.inInventory = !g.inInventory;
+			if (g.inInventory) g.UI.inventory();
+			// g.UI.inventory()
+			
+			
+			g.UI.hud()
+		},
+		'tutorial': function(){},
+		'win': function(){},
+	};
+	return _Scenes;
+})();
+
+class Game {
+	/**
+	
+	* @constructor
+	* Bundle and execute main game functions
+	
+	**/
+	constructor(config){
+		// Scene control
+		this.scene = config.scene;
+		this.sceneTo = config.sceneTo;
+		
+		// Debug/developer configuration
+		this.debug = config.debug;
+		
+		// Objects
+		this.player = new Player(this, { x: 0, y: 0, })
+		this.camera = new Camera(this, { target: this.player, speed: 0.5, zoomLimits: { min: 0.3, max: 1, }})
+		
+		// UI overlays for gameplay
+		this.inventorySection = 0;
+		this.inventorySelect = 0;
+		this.inInventory = false;
+		this.UI = {
+			'hud': () => {
+				// Health
+				const len = round(this.player.displayHealth * 2.2);
+				
+				ctx.beginPath()
+				ctx.save()
+				const gradient = ctx.createLinearGradient(20, 20, 20 + len, 30)
+				
+				gradient.addColorStop(0, "rgb(255, 43, 5)")
+				gradient.addColorStop(1, "rgb(166, 0, 0)")
+				
+				ctx.fillStyle = gradient;
+				ctx.roundRect(20, 20, len, 30, 5)
+				ctx.fill()
+				ctx.restore()
+				ctx.closePath()
+				
+				ctx.save()
+				
+				tint(225, 100, 100, 255)
+				image(imgs.UI.heart, 277, 35)
+				noTint()
+				
+				// Stamina
+				const len2 = round(this.player.displayStamina * 2.2);
+				const gradient2 = ctx.createLinearGradient(20, 60, 20 + len2, 30)
+				
+				gradient2.addColorStop(0, "rgb(5, 255, 51)")
+				gradient2.addColorStop(1, "rgb(0, 166, 14)")
+				
+				ctx.beginPath()
+				ctx.fillStyle = gradient2;
+				ctx.roundRect(20, 60, len2, 30, 5)
+				ctx.fill()
+				ctx.restore()
+				ctx.closePath()
+				
+				
+				image(imgs.UI.stamina, 277, 76, 20, 30)
+				
+				
+				// Temperature
+				const len3 = 220;
+				const gradient3 = ctx.createLinearGradient(669, 20, 669 + len3, 20)
+				
+				gradient3.addColorStop(0, "rgb(94, 175, 255)")
+				gradient3.addColorStop(1, "rgb(166, 72, 0)")
+				
+				ctx.beginPath()
+				ctx.fillStyle = gradient3;
+				ctx.roundRect(669, 20, len3, 30, 5)
+				ctx.fill()
+				ctx.restore()
+				ctx.closePath()
+				
+				fill(255)
+				rectMode(CORNER)
+				rect(775 + map(this.dome.temperature - 25, -100, 100, -110, 110), 20, 7, 30)
+				
+				ctx.fillStyle = 'black'
+				Display.text(`${String(this.dome.temperature)}°C`, 656, 41, 20, {format: "bold", title: true, align: 'right'})
+				
+				// Dome Event Indictator
+				const len4 = window.innerWidth - 200;
+				const gradient4 = ctx.createLinearGradient((width / 2) - len4 / 2, 527, len4, 28)
+				
+				gradient4.addColorStop(0, "rgb(255, 255, 255)")
+				gradient4.addColorStop(0.25, "rgb(0, 166, 19)")
+				gradient4.addColorStop(0.5, "rgb(112, 207, 255)")
+				gradient4.addColorStop(0.75, "rgb(255, 119, 112)")
+				
+				ctx.beginPath()
+				ctx.fillStyle = gradient4;
+				ctx.roundRect((width / 2) - len4 / 2, 527, len4, 30, 28)
+				ctx.fill()
+				ctx.restore()
+				ctx.closePath()
+			},
+			'inventory': () => {
+				fill(0, 180)
+				rectMode(CORNER)
+				rect(0, 0, width, height)
+				
+				pushStyle();
+				stroke(120)
+				strokeWeight(1)
+				line(0, 120, width, 120)
+				popStyle();
+				
+				ctx.fillStyle = 'white'
+				Display.text('Inventory', width / 2, 71, 30, { format: 'italic 500', letterSpacing: 3, })
+				
+				stroke(120, 180)
+				fill(0, 90)
+				rect(521, 329, 415, 190)
+				
+				line(547, 393, 892, 393)
+				
+				
+				const gap = 80;
+				for (let i = 0; i < 6; i ++){
+					for (let j = 0; j < 4; j ++){
+						pushMatrix()
+						translate(20, 224)
+						fill(0)
+						rect(i * gap, j * gap, 55, 55)
+						popMatrix()
+					}
+				}
+				
+				let offsetX = 0;
+				let offsetY = 0;
+				let totalCount = 0;
+				let allItems = [...this.player.weapons, ...this.player.items]
+				let curItem = allItems[this.inventorySelect];
+				let typeStack = [];
+				for (let i = 0; i < 24; i ++){
+					if (i <= allItems.length){
+						if (this.player.weapon === this.player.weapons[i]){
+							pushMatrix()
+							translate(20, 224)
+							fill(5, 142, 244)
+							rect(offsetX, offsetY, 55, 55)
+							popMatrix()
+						}
+					}
+					// Selected item outline
+					if (this.inventorySelect === i){
+						noFill();
+						strokeWeight(1)
+						stroke(255)
+						pushMatrix()
+						translate(20, 224)
+						rect(offsetX, offsetY, 55, 55)
+						noStroke();
+						
+						translate(3, 3)
+						fill(255)
+						triangle(offsetX - 4, offsetY - 4, offsetX + 4, offsetY - 4, offsetX - 4, offsetY + 4)
+						
+						translate(3, 0)
+						triangle(offsetX + 55 - 4, offsetY - 4, offsetX + 55 - 12, offsetY - 4, offsetX + 55 - 4, offsetY + 4)
+						
+						translate(-3, 3)
+						triangle(offsetX - 4, offsetY + 55 - 4, offsetX + 4, offsetY + 55 - 4, offsetX - 4, offsetY + 55 - 12)
+						translate(3, 0)
+						triangle(offsetX + 55 - 4, offsetY + 55 - 4, offsetX + 55 - 12, offsetY + 55 - 4, offsetX + 55 - 4, offsetY + 55 - 12)
+						popMatrix()
+						
+					}
+					const item = allItems[i];
+					let sz = 0;
+					
+					// Item stacking logic
+					if (item && !typeStack.includes(item.type)){
+						let img = null;
+						if (item instanceof Weapon){
+							img = imgs.weapons[`${item.material}_${item.type}`]
+							sz = 51;
+						} else if (item instanceof Item){
+							img = imgs.items[item.type]
+							sz = 30;
+							typeStack.push(item.type)
+						} 
+						pushMatrix()
+						translate(48 + offsetX, 251 + offsetY)
+						rotate(item instanceof Weapon ? -45 : 0)
+						imageMode(CENTER)
+						image(img, 0, 0, sz, img.height * (sz/img.width));
+						popMatrix()
+						totalCount ++;
+					} else if (item && typeStack.includes(item.type)){
+						const target = item.type;
+						const stackItem = allItems.find(i => i === target)
+						const count = allItems.filter(i => i.type === item.type).length;
+						typeStack.push(item.type)
+						
+						ctx.fillStyle = 'white'
+						Display.text(`${String(count)}`, offsetX, 280 + offsetY, 16)
+					}
+					offsetX += gap
+					if ((i + 1) % 6 === 0){
+						offsetX = 0;
+						offsetY += gap;
+					}
+					// Inventory gap
+					if (totalCount >= 24){
+						this.player.inventoryFull = true;
+					}
+				}
+				
+				// Prevent stacked items from showing info in following slots
+				let first = true;
+				if (allItems[this.inventorySelect] instanceof Item) first = allItems.findIndex(item => item && item.type === curItem.type) === this.inventorySelect;
+				
+				// Selected item info
+				if (allItems[this.inventorySelect] !== undefined && (!typeStack.includes(curItem.type) || first)) {
+					const type = curItem.type;
+					const material = curItem instanceof Weapon ? curItem.material : '';
+					ctx.fillStyle = 'white'
+					Display.text(`${curItem instanceof Weapon ? Display.capitalize(material) + ' ' : ''}${Display.capitalize(type)}`, 553, 377, 30, { format: 'italic 500', align: 'left' })
+					
+					if (curItem instanceof Weapon){
+						Display.text(`- ${String(curItem.damageMap[curItem.type][curItem.material])} attack damage\n- ${String(curItem.durabilityMap[curItem.type][curItem.material])} durability`, 554, 423, 14, { format: 'italic 500', align: 'left' })
+					}
+				}
+				noStroke()
+				
+				// Inventory controls
+				if (keys.click("enter") && this.player.weapons[this.inventorySelect] !== undefined) this.player.weapon = this.player.weapons[this.inventorySelect];
+				this.inventorySelect = constrain(this.inventorySelect, 0, 23)
+				if (keys.click("right")) this.inventorySelect ++;
+				if (keys.click("left")) this.inventorySelect --;
+				if (keys.click("up")) this.inventorySelect -= 6;
+				if (keys.click("down")) this.inventorySelect += 6;
+			},
+			'minimap': function(){},
+			'map': function(){},
+			'dead': function(){},
+		};
+		
+		// Image loading
+		this.curLoad = 0;
+		this.loading = true;
+		this.imgLen = 0;
+		Object.keys(imgs).forEach(category => {
+			Object.keys(imgs[category]).forEach(img => {
+				this.imgLen ++;
+			});
+		});
+		
+		// Game objects (enemies, rocks, etc)
+		this.enemies = [
+			new Guardian(this, {
+				x: -317,
+				y: -232,
+			}),
+		];
+		this.particles = [];
+		this.rocks = [];
+		this.logs = [];
+		this.campfires = [];
+		this.weapons = []
+		this.items = [];
+		this.crates = [];
+		this.camps = Array.from({ length: 50, }, () => new Camp(this, { x: cos(random(0, 360)) * random(0, 30000), y: sin(random(0, 360)) * random(0, 30000) }));
+		this.objs = [this.enemies, this.rocks, this.logs, this.campfires, this.crates, this.weapons, this.camps, this.items, this.particles]
+		
+		// Handle physics
+		this.handlePhysics()
+		
+		// Game state
+		this.active = true;
+		
+		this.dome = new Dome(this)
+	}
+	loadImgs(){
+		Object.keys(imgs).forEach(category => {
+			Object.keys(imgs[category]).forEach(key => {
+				imgs[category][key] = imgs[category][key]()
+				this.curLoad ++;
+			});
+		});
+		
+		if (this.curLoad >= this.imgLen) {
+			this.loading = false;
+		}
+        
+       	background(0)
+        pushStyle();
+            noFill();
+            strokeWeight(10);
+            strokeCap(SQUARE);
+            stroke(255);
+            arc(width / 2, height / 2, 300, 300, 0, this.curLoad * 100);
+        popStyle();
+        
+        fill(255);
+        textFont(createFont("sans-serif"), 49);
+        textAlign(CENTER, CENTER);
+        text("Loading...", width / 2, 100);
+	}
+	runObjs(){
+		this.objs.forEach(arr => {
+			arr.forEach((obj, index) => {
+				if (obj.health <= 0) obj.dead = true;
+				obj[obj.executable]();
+				if (obj.dead){
+					if (obj.body) Composite.remove(engine.world, obj.body)
+					arr.splice(index, 1)
+				}
+			});
+		});
+	}
+	handlePhysics(){
+		
+		// Call `collide` functions for bodies based on collision state
+		Events.on(engine, 'collisionStart', (e) => {
+			let pairs = e.pairs;
+			
+			for (let pair of pairs){
+				let { bodyA, bodyB } = pair;
+				
+				const objA = bodyA.object || bodyA.parent?.object;
+				const objB = bodyB.object || bodyB.parent?.object;
+				
+				if (objA && objA?.collide !== undefined){
+					objA.collide(bodyB, 'start')
+				}
+				if (objB && objB?.collide !== undefined){
+					objB.collide(bodyA, 'start')
+				}
+			}
+		})
+		Events.on(engine, 'collisionActive', (e) => {
+			let pairs = e.pairs;
+			
+			for (let pair of pairs){
+				let { bodyA, bodyB } = pair;
+				
+				const objA = bodyA.object || bodyA.parent?.object;
+				const objB = bodyB.object || bodyB.parent?.object;
+				
+				if (objA && objA?.collide !== undefined){
+					objA.collide(bodyB, 'active')
+				}
+				if (objB && objB?.collide !== undefined){
+					objB.collide(bodyA, 'active')
+				}
+			}
+		})
+		Events.on(engine, 'collisionEnd', (e) => {
+			let pairs = e.pairs;
+			
+			for (let pair of pairs){
+				let { bodyA, bodyB } = pair;
+				
+				const objA = bodyA.object || bodyA.parent?.object;
+				const objB = bodyB.object || bodyB.parent?.object;
+				
+				if (objA && objA?.collide !== undefined){
+					objA.collide(bodyB, 'end')
+				}
+				if (objB && objB?.collide !== undefined){
+					objB.collide(bodyA, 'end')
+				}
+			}
+		})
+	}
+	run(){
+		if (this.active) Engine.update(engine, 1000/60)
+		if (this.loading){
+			this.loadImgs();
+		} else {
+			Scenes[this.scene](this);
+		}
+		this.active = !this.inInventory;
+		mouse.update();
+		keys.update();
+	}
+}
+
+const game = new Game({
+	scene: "game",
+	debug: {
+		hitboxes: true,
+		event: "none",
+		speed: [true, 12],
+	},
+})
+
+draw = function(){
+	game.run();
+};
+ 	
+}
+
+runPJS(HylianGames)
+
+
+        </script>
+        <!-- Thumbnail script by SwankyMan (1/29/2026 | v3.2) at https://www.khanacademy.org/computer-programming/pic2pix-2/6029058910044160 -->
+<script type="module">(()=>{const M=600,b=document.body,i=b.appendChild(Object.assign(document.createElement("input"),{type:"file",accept:"image/*",style:"display:none"})),c=b.appendChild(Object.assign(document.createElement("canvas"),{style:"position:fixed;top:0;left:0;z-index:2147483647;display:block;pointer-events:none;"})),x=c.getContext("2d");addEventListener("keydown",e=>e.key==="Escape"&&i.click());i.onchange=async()=>{const f=i.files[0];if(!f) return;const g=await createImageBitmap(f),w=g.width>M?M:g.width,h=g.width>M?g.height*M/g.width:g.height;c.width=w;c.height=h;x.drawImage(g,0,0,w,h);x.putImageData(x.getImageData(0,0,w,h),0,0);parent.html2canvas=()=>top.postMessage(c.toDataURL(),"*");};})();</script>
+
+    </body>
+</html>
+
+<script>
+/**
+ 
+THE HYLIAN GAMES
+Lemon Games
+Team Oceanus, The Coding Olympics 2026
+
+@JUDGES
+
+IMPORTED CODE BLOCKS
+Image caching - From Round 1 - @Game/loadImgs
+Game object execution - From Round 1 - @Game/runObjs
+Input handling - From March 2026 - @Keys and @Mouse
+Enemy raycasting - Clash of Code Round 2 - @Enemy/handleDetection
+Custom functions - From Round 1 - @Funcs
+
+AI USAGE
+General debugging and error pointing. Parts where solutions are AI are documented.
+
+@CREDITS
+Audio - Arrow (@AudioBuffer and `dataToURI`)
+Matter.js - Physics/collisions
+Quantum Cat - Referenced physics code from Abyssal (see @Game/handlePhysics)
+SwankyMan - Pic2Pix/Thumbnail script
+
+**/
+</script>
